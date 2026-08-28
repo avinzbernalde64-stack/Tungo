@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>TUNGO - NDMC Campus Wayfinding & Facility Locator</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ndmc: {
+              950:'#040F07',
+              900:'#061A0B',
+              800:'#0C2614',
+              700:'#133A1E',
+              600:'#1B5228',
+              500:'#236B32',
+              400:'#2E8B3E',
+              300:'#4CAF50',
+              200:'#81C784',
+              100:'#C8E6C9',
+              50:'#E8F5E9'
+            },
+
+            gold: {
+              700:'#8B6914',
+              600:'#A67C1A',
+              500:'#C9A84C',
+              400:'#DABB6A',
+              300:'#E8D08A',
+              200:'#F0E4B8',
+              100:'#FAF5E4'
+            }
+          },
+
+          fontFamily: {
+            display:['Playfair Display','serif'],
+            body:['DM Sans','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="bg-layer"></div>
+  <div class="bg-dots"></div>
+
+  <div id="toast" class="toast toast-inf"></div>
+
+  <!-- =========================================================
+       NAVBAR
+  ========================================================== -->
+
+  <nav class="nav-bar" id="navbar">
+
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-5 py-3">
+
+      <div
+        class="flex items-center gap-3 cursor-pointer select-none"
+        onclick="go('home')"
+      >
+
+        <div
+          id="navLogo"
+          class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gold-500/50 shadow-lg shadow-gold-500/10"
+        ></div>
+
+        <div>
+          <div class="font-display text-lg font-black tracking-tight leading-none text-gold-500">
+            TUNGO
+          </div>
+
+          <div class="text-[9px] text-ndmc-300 tracking-widest uppercase font-medium">
+            NDMC Navigator
+          </div>
+        </div>
+
+      </div>
+
+      <div class="desk-nav flex items-center gap-7">
+
+        <span
+          class="nav-link active"
+          data-p="home"
+          onclick="go('home')"
+        >
+          <i class="fas fa-home mr-1.5 text-xs"></i>
+          Home
+        </span>
+
+        <span
+          class="nav-link"
+          data-p="search"
+          onclick="go('search')"
+        >
+          <i class="fas fa-search mr-1.5 text-xs"></i>
+          Search
+        </span>
+
+        <span
+          class="nav-link"
+          data-p="map"
+          onclick="go('map')"
+        >
+          <i class="fas fa-map mr-1.5 text-xs"></i>
+          Campus Map
+        </span>
+
+        <span
+          class="nav-link"
+          data-p="admin"
+          onclick="go('admin')"
+        >
+          <i class="fas fa-shield-halved mr-1.5 text-xs"></i>
+          Admin
+        </span>
+
+      </div>
+
+      <button
+        class="mob-btn btn-icon"
+        onclick="toggleMob()"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+
+    </div>
+
+  </nav>
+
+
+  <!-- =========================================================
+       MOBILE DRAWER
+  ========================================================== -->
+
+  <div id="mobDrawer" class="mob-drawer">
+
+    <div class="flex flex-col items-center gap-4 px-5 pt-24">
+
+      <div
+        id="mobLogo"
+        class="w-20 h-20 rounded-full overflow-hidden border-2 border-gold-500/40 mb-2"
+      ></div>
+
+      <span class="text-gold-500 font-display font-bold text-sm">
+        TUNGO
+      </span>
+
+      <div class="w-full flex flex-col gap-1 mt-4">
+
+        <a
+          class="mob-link"
+          onclick="go('home');toggleMob()"
+        >
+          <i class="fas fa-home w-7 text-center"></i>
+          Home
+        </a>
+
+        <a
+          class="mob-link"
+          onclick="go('search');toggleMob()"
+        >
+          <i class="fas fa-search w-7 text-center"></i>
+          Search
+        </a>
+
+        <a
+          class="mob-link"
+          onclick="go('map');toggleMob()"
+        >
+          <i class="fas fa-map w-7 text-center"></i>
+          Campus Map
+        </a>
+
+        <a
+          class="mob-link"
+          onclick="go('admin');toggleMob()"
+        >
+          <i class="fas fa-shield-halved w-7 text-center"></i>
+          Admin
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       HOME
+  ========================================================== -->
+
+  <section id="pg-home" class="page active">
+
+    <div class="flex-1 pt-20 pb-16 px-5 max-w-6xl mx-auto w-full relative z-10">
+
+      <div class="text-center pt-6 sm:pt-10 pb-10">
+
+        <!-- LARGE LOGO -->
+
+        <div class="flex justify-center mb-6">
+
+          <div
+            id="heroLogo"
+            class="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-gold-500/40 shadow-2xl shadow-gold-500/10"
+            style="animation:float 4s ease-in-out infinite"
+          ></div>
+
+        </div>
+
+
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold-500/25 bg-gold-500/5 mb-6">
+
+          <i class="fas fa-star text-gold-500 text-[9px]"></i>
+
+          <span class="text-gold-500 text-xs font-semibold tracking-wide">
+            NDMC NAVIGATION
+          </span>
+
+          <i class="fas fa-star text-gold-500 text-[9px]"></i>
+
+        </div>
+
+
+        <h1 class="font-display text-5xl sm:text-7xl lg:text-8xl font-black leading-[.88] mb-4">
+          <span class="shimmer-text">TUNGO</span>
+        </h1>
+
+
+        <p class="text-lg sm:text-xl text-ndmc-200 font-light mb-1">
+          Notre Dame of Midsayap College
+        </p>
+
+        <p class="text-sm text-ndmc-300/50 mb-8 italic">
+          "Where do you need to go?"
+        </p>
+
+
+        <!-- HERO SEARCH -->
+
+        <div class="relative max-w-2xl mx-auto mb-9">
+
+          <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-ndmc-300/30"></i>
+
+          <input
+            id="heroSearch"
+            type="text"
+            placeholder="Search office, room, laboratory, or facility..."
+            class="search-box w-full pl-14 pr-36 py-4 text-base rounded-2xl"
+            onkeydown="if(event.key==='Enter')heroGo()"
+          >
+
+          <button
+            onclick="heroGo()"
+            class="btn-gold absolute right-2 top-1/2 -translate-y-1/2 rounded-xl text-sm"
+          >
+            Search
+          </button>
+
+        </div>
+
+
+        <!-- CATEGORY CARDS -->
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+
+          <div
+            class="card clickable p-5 text-center"
+            onclick="goSearch('Office')"
+          >
+
+            <div class="w-11 h-11 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center mx-auto mb-2">
+              <i class="fas fa-building-columns text-gold-500"></i>
+            </div>
+
+            <div class="font-semibold text-sm">
+              Offices
+            </div>
+
+            <div
+              class="text-[11px] text-ndmc-300/40 mt-0.5"
+              id="hc-off"
+            >
+              &mdash;
+            </div>
+
+          </div>
+
+
+          <div
+            class="card clickable p-5 text-center"
+            onclick="goSearch('Classroom')"
+          >
+
+            <div class="w-11 h-11 rounded-xl bg-ndmc-400/10 border border-ndmc-400/20 flex items-center justify-center mx-auto mb-2">
+              <i class="fas fa-chalkboard-user text-ndmc-300"></i>
+            </div>
+
+            <div class="font-semibold text-sm">
+              Classrooms
+            </div>
+
+            <div
+              class="text-[11px] text-ndmc-300/40 mt-0.5"
+              id="hc-cl"
+            >
+              &mdash;
+            </div>
+
+          </div>
+
+
+          <div
+            class="card clickable p-5 text-center"
+            onclick="goSearch('Laboratory')"
+          >
+
+            <div class="w-11 h-11 rounded-xl bg-ndmc-300/10 border border-ndmc-300/20 flex items-center justify-center mx-auto mb-2">
+              <i class="fas fa-flask text-ndmc-300"></i>
+            </div>
+
+            <div class="font-semibold text-sm">
+              Laboratories
+            </div>
+
+            <div
+              class="text-[11px] text-ndmc-300/40 mt-0.5"
+              id="hc-lab"
+            >
+              &mdash;
+            </div>
+
+          </div>
+
+
+          <div
+            class="card clickable p-5 text-center"
+            onclick="goSearch('Facility')"
+          >
+
+            <div class="w-11 h-11 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-2">
+              <i class="fas fa-landmark text-orange-400"></i>
+            </div>
+
+            <div class="font-semibold text-sm">
+              Facilities
+            </div>
+
+            <div
+              class="text-[11px] text-ndmc-300/40 mt-0.5"
+              id="hc-fac"
+            >
+              &mdash;
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATISTICS -->
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-11">
+
+        <div class="info-tile text-center">
+          <div class="label">Total Locations</div>
+          <div
+            class="text-2xl font-bold text-gold-500"
+            id="st-all"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="info-tile text-center">
+          <div class="label">Buildings</div>
+          <div
+            class="text-2xl font-bold text-ndmc-200"
+            id="st-bld"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="info-tile text-center">
+          <div class="label">Departments</div>
+          <div
+            class="text-2xl font-bold text-ndmc-200"
+            id="st-dept"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="info-tile text-center">
+          <div class="label">Map Codes</div>
+          <div class="text-2xl font-bold text-ndmc-200">
+            A&ndash;P
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- FEATURED -->
+
+      <div class="mb-11">
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="font-display text-xl font-bold">
+            Featured Locations
+          </h2>
+
+          <button
+            class="btn-ghost btn-sm"
+            onclick="go('search')"
+          >
+            View All
+            <i class="fas fa-arrow-right text-[10px]"></i>
+          </button>
+
+        </div>
+
+        <div
+          class="featured-scroll"
+          id="featuredScroll"
+        ></div>
+
+      </div>
+
+
+      <!-- CAMPUS OVERVIEW -->
+
+      <div>
+
+        <div class="flex items-center justify-between mb-4">
+
+          <h2 class="font-display text-xl font-bold">
+            Campus Overview
+          </h2>
+
+          <button
+            class="btn-ghost btn-sm"
+            onclick="go('map')"
+          >
+            Open Full Map
+            <i class="fas fa-expand text-[10px]"></i>
+          </button>
+
+        </div>
+
+        <div
+          class="map-wrap p-3 cursor-pointer"
+          onclick="go('map')"
+        >
+          <svg
+            id="homeMap"
+            viewBox="0 0 1200 800"
+            class="w-full h-auto"
+            style="max-height:380px"
+          ></svg>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       SEARCH
+  ========================================================== -->
+
+  <section id="pg-search" class="page">
+
+    <div class="flex-1 pt-20 pb-16 px-5 max-w-5xl mx-auto w-full relative z-10">
+
+      <div class="breadcrumb mb-5">
+
+        <a onclick="go('home')">
+          Home
+        </a>
+
+        <span class="sep">/</span>
+
+        <span class="text-ndmc-100">
+          Search
+        </span>
+
+      </div>
+
+
+      <h2 class="font-display text-2xl sm:text-3xl font-bold mb-1">
+        Search Location
+      </h2>
+
+      <p class="text-ndmc-300/50 text-sm mb-5">
+        Find any office, classroom, laboratory, shop, or facility on the NDMC campus
+      </p>
+
+
+      <div class="flex flex-col md:flex-row gap-3 mb-4">
+
+        <div class="relative flex-1">
+
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-ndmc-300/25 text-sm"></i>
+
+          <input
+            id="sInput"
+            type="text"
+            placeholder="Type name, building, code, department, or room..."
+            class="search-box w-full pl-11 pr-4 py-3 rounded-xl text-sm"
+            oninput="doSearch()"
+          >
+
+        </div>
+
+
+        <div class="flex gap-2 flex-wrap">
+
+          <button
+            class="sf-btn btn-ghost btn-sm active"
+            data-c="All"
+            onclick="setSF('All')"
+          >
+            All
+          </button>
+
+          <button
+            class="sf-btn btn-ghost btn-sm"
+            data-c="Office"
+            onclick="setSF('Office')"
+          >
+            <i class="fas fa-building-columns mr-1 text-[10px]"></i>
+            Offices
+          </button>
+
+          <button
+            class="sf-btn btn-ghost btn-sm"
+            data-c="Classroom"
+            onclick="setSF('Classroom')"
+          >
+            <i class="fas fa-chalkboard-user mr-1 text-[10px]"></i>
+            Rooms
+          </button>
+
+          <button
+            class="sf-btn btn-ghost btn-sm"
+            data-c="Laboratory"
+            onclick="setSF('Laboratory')"
+          >
+            <i class="fas fa-flask mr-1 text-[10px]"></i>
+            Labs
+          </button>
+
+          <button
+            class="sf-btn btn-ghost btn-sm"
+            data-c="Facility"
+            onclick="setSF('Facility')"
+          >
+            <i class="fas fa-landmark mr-1 text-[10px]"></i>
+            Facilities
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="text-xs text-ndmc-300/40 mb-4"
+        id="sCount"
+      >
+        Showing all locations
+      </div>
+
+
+      <div
+        id="sResults"
+        class="grid gap-3"
+      ></div>
+
+
+      <div
+        id="sEmpty"
+        class="hidden text-center py-20"
+      >
+
+        <i class="fas fa-search text-3xl text-ndmc-700 mb-3 block"></i>
+
+        <p class="text-ndmc-300/40 text-sm">
+          No locations match your search.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       DETAILS
+  ========================================================== -->
+
+  <section id="pg-details" class="page">
+
+    <div class="flex-1 pt-20 pb-16 px-5 max-w-4xl mx-auto w-full relative z-10">
+
+      <div class="breadcrumb mb-5">
+
+        <a onclick="go('home')">
+          Home
+        </a>
+
+        <span class="sep">/</span>
+
+        <a onclick="go('search')">
+          Search
+        </a>
+
+        <span class="sep">/</span>
+
+        <span
+          class="text-ndmc-100"
+          id="dCrumb"
+        >
+          Details
+        </span>
+
+      </div>
+
+      <div id="dBody"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       MAP
+  ========================================================== -->
+
+  <section id="pg-map" class="page">
+
+    <div class="flex-1 pt-20 pb-16 px-4 sm:px-5 max-w-7xl mx-auto w-full relative z-10">
+
+      <div class="breadcrumb mb-4">
+
+        <a onclick="go('home')">
+          Home
+        </a>
+
+        <span class="sep">/</span>
+
+        <span class="text-ndmc-100">
+          Campus Map
+        </span>
+
+      </div>
+
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+
+        <div>
+
+          <h2 class="font-display text-2xl sm:text-3xl font-bold">
+            NDMC Campus Map
+          </h2>
+
+          <p class="text-ndmc-300/50 text-xs mt-1">
+            Notre Dame of Midsayap College &mdash; Quezon Avenue, Midsayap, Cotabato
+          </p>
+
+        </div>
+
+
+        <div
+          id="mapBadge"
+          class="hidden tag border border-gold-500/30 bg-gold-500/5 text-gold-500 py-1.5 px-3 text-xs"
+        >
+
+          <i class="fas fa-location-dot text-[10px]"></i>
+
+          <span id="mapBadgeTxt">
+            &mdash;
+          </span>
+
+          <button
+            onclick="clearSel()"
+            class="ml-2 text-ndmc-300 hover:text-white"
+          >
+            <i class="fas fa-xmark text-[10px]"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- MAP INFORMATION PANEL -->
+
+      <div
+        id="mapPanel"
+        class="hidden card p-4 mb-4"
+        style="cursor:default"
+      >
+
+        <div class="flex items-start gap-4">
+
+          <div
+            class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+            id="mpIcon"
+          ></div>
+
+
+          <div class="flex-1 min-w-0">
+
+            <div class="flex items-center gap-2 mb-0.5">
+
+              <h3
+                class="font-bold text-base"
+                id="mpName"
+              >
+                &mdash;
+              </h3>
+
+              <span
+                class="tag text-[10px] font-bold"
+                id="mpCode"
+                style="background:rgba(201,168,76,0.12);color:#DABB6A;border:1px solid rgba(201,168,76,0.25)"
+              ></span>
+
+            </div>
+
+
+            <p
+              class="text-xs text-ndmc-300/50"
+              id="mpDesc"
+            >
+              &mdash;
+            </p>
+
+
+            <div
+              class="flex flex-wrap gap-2 mt-2"
+              id="mpTags"
+            ></div>
+
+
+            <div class="flex gap-2 mt-3">
+
+              <button
+                class="btn-gold btn-sm"
+                id="mpBtn"
+              >
+                View Locations
+              </button>
+
+              <button
+                class="btn-ghost btn-sm"
+                id="mpDirBtn"
+                style="display:none"
+              >
+                <i class="fas fa-route"></i>
+                Directions
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn-icon flex-shrink-0"
+            onclick="clearSel()"
+          >
+            <i class="fas fa-xmark text-xs"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- MAP -->
+
+      <div
+        class="map-wrap p-2 sm:p-4 relative"
+        id="mapWrap"
+      >
+
+        <div
+          id="mapTip"
+          class="map-tip"
+        ></div>
+
+        <svg
+          id="fullMap"
+          viewBox="0 0 1200 800"
+          class="w-full h-auto"
+          style="min-height:460px;max-height:74vh"
+        ></svg>
+
+        <div
+          class="flex flex-wrap gap-x-4 gap-y-2 mt-3 px-1 text-[11px]"
+          id="mapLegend"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       NAVIGATION
+  ========================================================== -->
+
+  <section id="pg-nav" class="page">
+
+    <div class="flex-1 pt-20 pb-16 px-5 max-w-4xl mx-auto w-full relative z-10">
+
+      <div class="breadcrumb mb-5">
+
+        <a onclick="go('home')">
+          Home
+        </a>
+
+        <span class="sep">/</span>
+
+        <a onclick="go('details')">
+          Details
+        </a>
+
+        <span class="sep">/</span>
+
+        <span class="text-ndmc-100">
+          Navigation
+        </span>
+
+      </div>
+
+
+      <h2 class="font-display text-2xl sm:text-3xl font-bold mb-1">
+        TUNGO Navigation
+      </h2>
+
+      <p class="text-ndmc-300/50 text-sm mb-7">
+        Step-by-step walking directions from the Main Gate
+      </p>
+
+      <div id="navBody"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       ADMIN
+  ========================================================== -->
+
+  <section id="pg-admin" class="page">
+
+    <div class="flex-1 pt-20 pb-16 px-5 max-w-6xl mx-auto w-full relative z-10">
+
+      <div class="breadcrumb mb-4">
+
+        <a onclick="go('home')">
+          Home
+        </a>
+
+        <span class="sep">/</span>
+
+        <span class="text-ndmc-100">
+          Administration
+        </span>
+
+      </div>
+
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+
+        <div>
+
+          <h2 class="font-display text-2xl sm:text-3xl font-bold">
+            TUNGO Administration
+          </h2>
+
+          <p class="text-ndmc-300/50 text-xs mt-1">
+            Manage all campus location data
+          </p>
+
+        </div>
+
+
+        <button
+          class="btn-gold text-sm"
+          onclick="openAdd()"
+        >
+          <i class="fas fa-plus"></i>
+          Add Location
+        </button>
+
+      </div>
+
+
+      <div class="flex gap-2 mb-3 flex-wrap">
+
+        <button
+          class="af-btn btn-ghost btn-sm active"
+          data-c="All"
+          onclick="setAF('All')"
+        >
+          All
+        </button>
+
+        <button
+          class="af-btn btn-ghost btn-sm"
+          data-c="Office"
+          onclick="setAF('Office')"
+        >
+          Offices
+        </button>
+
+        <button
+          class="af-btn btn-ghost btn-sm"
+          data-c="Classroom"
+          onclick="setAF('Classroom')"
+        >
+          Classrooms
+        </button>
+
+        <button
+          class="af-btn btn-ghost btn-sm"
+          data-c="Laboratory"
+          onclick="setAF('Laboratory')"
+        >
+          Labs
+        </button>
+
+        <button
+          class="af-btn btn-ghost btn-sm"
+          data-c="Facility"
+          onclick="setAF('Facility')"
+        >
+          Facilities
+        </button>
+
+      </div>
+
+
+      <div class="relative mb-3">
+
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-ndmc-300/25 text-xs"></i>
+
+        <input
+          id="aInput"
+          type="text"
+          placeholder="Search locations to manage..."
+          class="search-box w-full pl-11 pr-4 py-2.5 rounded-xl text-sm"
+          oninput="renderTbl()"
+        >
+
+      </div>
+
+
+      <div
+        class="rounded-2xl border border-ndmc-700/40 overflow-hidden"
+        style="background:var(--card)"
+      >
+
+        <div class="overflow-x-auto">
+
+          <table class="tbl">
+
+            <thead>
+
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Building</th>
+                <th>Floor</th>
+                <th>Room</th>
+                <th>Actions</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="aBody"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       ADD / EDIT MODAL
+  ========================================================== -->
+
+  <div id="formModal" class="modal-bg">
+
+    <div class="modal">
+
+      <div class="flex items-center justify-between mb-5">
+
+        <h3
+          class="font-display text-lg font-bold"
+          id="fmTitle"
+        >
+          Add Location
+        </h3>
+
+        <button
+          class="btn-icon"
+          onclick="closeForm()"
+        >
+          <i class="fas fa-xmark text-xs"></i>
+        </button>
+
+      </div>
+
+
+      <form
+        id="locForm"
+        onsubmit="saveLoc(event)"
+      >
+
+        <input
+          type="hidden"
+          id="fId"
+        >
+
+
+        <div class="grid gap-3">
+
+          <div>
+
+            <label class="flabel">
+              Name
+            </label>
+
+            <input
+              id="fName"
+              class="form-field"
+              required
+              placeholder="e.g. Guidance and Testing Center"
+            >
+
+          </div>
+
+
+          <div class="grid grid-cols-2 gap-3">
+
+            <div>
+
+              <label class="flabel">
+                Category
+              </label>
+
+              <select
+                id="fCat"
+                class="form-field"
+                required
+              >
+
+                <option value="Office">
+                  Office
+                </option>
+
+                <option value="Classroom">
+                  Classroom
+                </option>
+
+                <option value="Laboratory">
+                  Laboratory
+                </option>
+
+                <option value="Facility">
+                  Facility
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div>
+
+              <label class="flabel">
+                Map Code
+              </label>
+
+              <select
+                id="fCode"
+                class="form-field"
+              ></select>
+
+            </div>
+
+          </div>
+
+
+          <div class="grid grid-cols-2 gap-3">
+
+            <div>
+
+              <label class="flabel">
+                Floor
+              </label>
+
+              <input
+                id="fFloor"
+                class="form-field"
+                placeholder="e.g. 1st Floor"
+              >
+
+            </div>
+
+
+            <div>
+
+              <label class="flabel">
+                Room Number
+              </label>
+
+              <input
+                id="fRoom"
+                class="form-field"
+                placeholder="e.g. 101"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="grid grid-cols-2 gap-3">
+
+            <div>
+
+              <label class="flabel">
+                Department
+              </label>
+
+              <input
+                id="fDept"
+                class="form-field"
+                placeholder="e.g. Student Affairs"
+              >
+
+            </div>
+
+
+            <div>
+
+              <label class="flabel">
+                Office Hours
+              </label>
+
+              <input
+                id="fHrs"
+                class="form-field"
+                placeholder="e.g. 8:00 AM - 5:00 PM"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div>
+
+            <label class="flabel">
+              Description
+            </label>
+
+            <textarea
+              id="fDesc"
+              class="form-field"
+              rows="3"
+              placeholder="Brief description..."
+            ></textarea>
+
+          </div>
+
+        </div>
+
+
+        <div class="flex justify-end gap-2 mt-5">
+
+          <button
+            type="button"
+            class="btn-ghost btn-sm"
+            onclick="closeForm()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn-gold btn-sm"
+          >
+            Save Location
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       DELETE MODAL
+  ========================================================== -->
+
+  <div id="delModal" class="modal-bg">
+
+    <div
+      class="modal"
+      style="max-width:400px;text-align:center"
+    >
+
+      <div class="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+
+        <i class="fas fa-trash-alt text-red-400 text-xl"></i>
+
+      </div>
+
+
+      <h3 class="font-display text-lg font-bold mb-2">
+        Delete Location
+      </h3>
+
+
+      <p class="text-ndmc-300/50 text-sm mb-5">
+
+        Delete
+
+        <strong
+          class="text-ndmc-100"
+          id="delName"
+        >
+          &mdash;
+        </strong>
+
+        ? This cannot be undone.
+
+      </p>
+
+
+      <div class="flex justify-center gap-2">
+
+        <button
+          class="btn-ghost btn-sm"
+          onclick="closeDel()"
+        >
+          Cancel
+        </button>
+
+        <button
+          class="btn-sm font-bold px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors border-0 cursor-pointer"
+          style="font-family:DM Sans"
+          onclick="doDel()"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
